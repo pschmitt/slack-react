@@ -39,11 +39,11 @@ def parse_args():
 def message_to_emoji_list(message):
     # mapping of alphabets to their corresponding emoji names
     emoji_mapping = {
-        "a": ["alphabet-white-a", "alphabet-yellow-a"],
-        "b": ["alphabet-white-b", "alphabet-yellow-b"],
+        "a": ["a", "alphabet-white-a", "alphabet-yellow-a"],
+        "b": ["b", "alphabet-white-b", "alphabet-yellow-b"],
         "c": ["alphabet-white-c", "alphabet-yellow-c"],
         "d": ["alphabet-white-d", "alphabet-yellow-d"],
-        "e": ["alphabet-white-e", "alphabet-yellow-e"],
+        "e": ["alphabet-white-e", "alphabet-yellow-e", "e-mail"],
         "f": ["alphabet-white-f", "alphabet-yellow-f"],
         "g": ["alphabet-white-g", "alphabet-yellow-g"],
         "h": ["alphabet-white-h", "alphabet-yellow-h"],
@@ -79,21 +79,32 @@ def message_to_emoji_list(message):
 
     # create a list to hold the emojis
     emojis = []
+    # create a dictionary to hold the index of the next emoji to use for
+    # each character
+    next_emoji_index = {}
 
     # iterate over each character in the message
     for char in message:
         # convert the character to lowercase
         char = char.lower()
 
-        # if the character is in the mapping, add the corresponding emoji
-        # to the list
+        # if the character is in the mapping
         if char in emoji_mapping:
-            # use the first emoji if it's not already in the list
-            if emoji_mapping[char][0] not in emojis:
-                emojis.append(emoji_mapping[char][0])
-            # otherwise use the second emoji
-            else:
-                emojis.append(emoji_mapping[char][1])
+            # if the character is not in next_emoji_index, this is the first
+            # time we've seen it
+            if char not in next_emoji_index:
+                next_emoji_index[char] = 0
+
+            # get the next emoji for this character
+            emoji = emoji_mapping[char][next_emoji_index[char]]
+
+            # add the emoji to the list
+            emojis.append(emoji)
+
+            # update the index of the next emoji to use for this character
+            next_emoji_index[char] = (next_emoji_index[char] + 1) % len(
+                emoji_mapping[char]
+            )
 
     return emojis
 
