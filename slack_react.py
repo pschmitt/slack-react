@@ -4,6 +4,7 @@
 import argparse
 import os
 import re
+import sys
 
 import slack_sdk
 from rich import print
@@ -186,15 +187,19 @@ def main():
     channel_id = get_channel_id(client, args.channel)
 
     if not channel_id:
-        print(f"Channel '{args.channel}' not found")
+        print(f"Channel '{args.channel}' not found", file=sys.stderr)
         return 1
 
     response = client.conversations_history(channel=channel_id)
 
     if args.message:
         message = find_matching_message(client, channel_id, args.message)
+        if not message:
+            print("Message not found", file=sys.stderr)
+            return 1
         ts = message["ts"]
     else:
+        # Default to last message
         ts = response["messages"][0]["ts"]
 
     remove_reactions(client, channel_id, ts)
@@ -202,6 +207,8 @@ def main():
     if args.reaction and not args.remove:
         add_reactions(client, channel_id, ts, args.reaction)
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
