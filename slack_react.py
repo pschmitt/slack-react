@@ -85,7 +85,8 @@ def message_to_emoji_list(message):
         # convert the character to lowercase
         char = char.lower()
 
-        # if the character is in the mapping, add the corresponding emoji to the list
+        # if the character is in the mapping, add the corresponding emoji
+        # to the list
         if char in emoji_mapping:
             # use the first emoji if it's not already in the list
             if emoji_mapping[char][0] not in emojis:
