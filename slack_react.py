@@ -2,15 +2,22 @@
 # coding: utf-8
 
 import argparse
+import datetime
+import json
 import logging
 import os
 import re
+import shutil
 import sys
 from typing import Dict, List
 
 import slack_sdk
+from appdirs import user_cache_dir
 from rich import print
 from rich.logging import RichHandler
+
+APP_NAME = "slack-react"
+LOGGER = logging.getLogger(__name__)
 
 
 def parse_args():
@@ -132,6 +139,91 @@ def message_to_emoji_list(message):
     return emojis
 
 
+def invalidate_cache():
+    cache_dir = user_cache_dir(APP_NAME)
+    if os.path.exists(cache_dir) and os.path.isdir(cache_dir):
+        shutil.rmtree(cache_dir)
+
+
+def get_cache_age(
+    filename: str = "channel_cache.json",
+):
+    # Determine the full path to the cache file
+    cache_dir = user_cache_dir(APP_NAME)
+    metadata_filepath = os.path.join(
+        cache_dir, filename.replace(".json", ".metadata.json")
+    )
+    try:
+        with open(metadata_filepath, "r") as f:
+            metadata = json.load(f)
+            created = metadata.get("created")
+            if not created:
+                return
+
+            return datetime.datetime.now() - datetime.datetime.fromtimestamp(
+                created
+            )
+    except (FileNotFoundError, json.JSONDecodeError):
+        return
+
+
+def is_cache_valid(
+    filename: str = "channel_cache.json",
+):
+    age = get_cache_age(filename)
+    if not age:
+        return False
+    return age < datetime.timedelta(days=1)
+
+
+def update_channel_cache(
+    content: List[Dict],
+    filename: str = "channel_cache.json",
+):
+    # Determine the full path to the cache file
+    cache_dir = user_cache_dir(APP_NAME)
+    os.makedirs(cache_dir, exist_ok=True)
+    filepath = os.path.join(cache_dir, filename)
+
+    with open(filepath, "w") as f:
+        json.dump(content, f)
+
+    ts = int(datetime.datetime.now().timestamp())
+    metadata = {"created": ts}
+    metadata_filepath = os.path.join(
+        cache_dir, filename.replace(".json", ".metadata.json")
+    )
+    with open(metadata_filepath, "w") as f:
+        json.dump(metadata, f)
+
+
+def load_channel_cache(filename: str = "channel_cache.json") -> List[Dict]:
+    # Determine the full path to the cache file
+    cache_dir = user_cache_dir(APP_NAME)
+    filepath = os.path.join(cache_dir, filename)
+
+    try:
+        with open(filepath, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
+
+
+def smart_cache(
+    client: slack_sdk.WebClient,
+    filename: str = "channel_cache.json",
+):
+    if is_cache_valid(filename):
+        LOGGER.info("Using cached channel list")
+        return load_channel_cache(filename)
+    else:
+        LOGGER.info("Cache invalid, fetching channel list")
+        invalidate_cache()
+        content = get_all_channels(client)
+        update_channel_cache(content, filename)
+        return content
+
+
 def get_user_id(client):
     response = client.auth_test()
 
@@ -167,7 +259,7 @@ def get_all_channels(
 
 def get_channel_id(client, channel_name):
     # the channels are in the 'channels' field of the response
-    channels = get_all_channels(client)
+    channels = smart_cache(client)
 
     # iterate over the channels to find the one with the given name
     for channel in channels:
@@ -258,9 +350,6 @@ def main():
         add_reactions(client, channel_id, ts, args.reaction)
 
     return 0
-
-
-LOGGER = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":

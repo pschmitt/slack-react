@@ -16,10 +16,11 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 dependencies = [
+  "appdirs",
   "rich",
   "slack_sdk"
 ]
-version = "0.2.2"
+version = "--help"
 
 [tool.black]
 line-length = 79
