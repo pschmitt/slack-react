@@ -19,7 +19,7 @@ dependencies = [
   "rich",
   "slack_sdk"
 ]
-version = "0.2.1"
+version = "0.2.2"
 
 [tool.black]
 line-length = 79
