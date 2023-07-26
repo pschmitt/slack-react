@@ -5,6 +5,7 @@ import argparse
 import os
 import re
 import sys
+from typing import Dict, List
 
 import slack_sdk
 from rich import print
@@ -117,13 +118,35 @@ def get_user_id(client):
     return response["user_id"]
 
 
-def get_channel_id(client, channel_name):
-    response = client.conversations_list(
-        types=["private_channel", "public_channel", "mpim", "im"], limit=1000
+def get_all_channels(
+    client: slack_sdk.WebClient, page_size: int = 500
+) -> List[Dict]:
+    channels = []
+    types = ["private_channel", "public_channel", "mpim", "im"]
+    result = client.conversations_list(
+        types=types,
+        limit=page_size,
     )
 
+    if not isinstance(result.get("channels"), list):
+        raise ValueError("Invalid response from Slack API")
+
+    channels.extend(result.get("channels", []))
+    next_cursor = result.get("response_metadata", {}).get("next_cursor")
+
+    while next_cursor:
+        result = client.conversations_list(
+            limit=page_size, types=types, cursor=next_cursor
+        )
+        next_cursor = result.get("response_metadata", {}).get("next_cursor")
+        channels.extend(result.get("channels", []))
+
+    return channels
+
+
+def get_channel_id(client, channel_name):
     # the channels are in the 'channels' field of the response
-    channels = response["channels"]
+    channels = get_all_channels(client)
 
     # iterate over the channels to find the one with the given name
     for channel in channels:
