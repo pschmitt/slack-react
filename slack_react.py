@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import argparse
+import logging
 import os
 import re
 import sys
@@ -9,12 +10,15 @@ from typing import Dict, List
 
 import slack_sdk
 from rich import print
+from rich.logging import RichHandler
 
 
 def parse_args():
     # create the top-level parser
     parser = argparse.ArgumentParser()
-
+    parser.add_argument(
+        "-d", "--debug", action="store_true", default=False, help="Debug mode"
+    )
     parser.add_argument("-c", "--channel", help="Channel name")
     parser.add_argument(
         "-t",
@@ -196,6 +200,7 @@ def remove_reactions(client, channel_id, timestamp):
 def add_reactions(client, channel_id, timestamp, message):
     for reaction in message_to_emoji_list(message):
         # react to a message
+        LOGGER.info("Adding reaction to message: %s", reaction)
         client.reactions_add(
             channel=channel_id, timestamp=timestamp, name=reaction
         )
@@ -203,6 +208,11 @@ def add_reactions(client, channel_id, timestamp, message):
 
 def main():
     args = parse_args()
+
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        handlers=[RichHandler()],
+    )
 
     # create a client instance
     client = slack_sdk.WebClient(token=args.token)
@@ -231,6 +241,9 @@ def main():
         add_reactions(client, channel_id, ts, args.reaction)
 
     return 0
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 if __name__ == "__main__":
