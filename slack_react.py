@@ -59,7 +59,7 @@ def message_to_emoji_list(message):
         "l": ["alphabet-white-l", "alphabet-yellow-l"],
         "m": ["alphabet-white-m", "alphabet-yellow-m"],
         "n": ["alphabet-white-n", "alphabet-yellow-n"],
-        "o": ["alphabet-white-o", "alphabet-yellow-o"],
+        "o": ["alphabet-white-o", "alphabet-yellow-o", "o"],
         "p": ["alphabet-white-p", "alphabet-yellow-p"],
         "q": ["alphabet-white-q", "alphabet-yellow-q"],
         "r": ["alphabet-white-r", "alphabet-yellow-r"],
@@ -81,6 +81,23 @@ def message_to_emoji_list(message):
         "7": ["seven", "seven"],
         "8": ["eight", "eight"],
         "9": ["nine", "nine"],
+        "?": ["alphabet-white-question", "alphabet-yellow-question"],
+        "!": [
+            "exclamation",
+            "bangbang",
+            "gray_exclamation",
+            "alphabet-white-exclamation",
+            "alphabet-yellow-exclamation",
+        ],
+        "-": ["heavy_minus_sign", "wavy_dash"],
+        " ": [
+            "black_small_square",
+            "white_small_square",
+            "small_orange_diamond",
+            "small_blue_diamond",
+            "black_medium_square",
+            "white_medium_square",
+        ],
     }
 
     # create a list to hold the emojis
