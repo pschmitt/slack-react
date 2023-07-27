@@ -1,0 +1,3 @@
+import slack_sdk
+
+client = slack_sdk.WebClient(token=os.environ.get("SLACK_USER_OAUTH_TOKEN"))
