@@ -19,6 +19,63 @@ from rich.logging import RichHandler
 APP_NAME = "slack-react"
 LOGGER = logging.getLogger(__name__)
 
+# mapping of alphabets to their corresponding emoji names
+EMOJI_MAPPING = {
+    "a": ["a", "alphabet-white-a", "alphabet-yellow-a"],
+    "b": ["b", "alphabet-white-b", "alphabet-yellow-b"],
+    "c": ["alphabet-white-c", "alphabet-yellow-c"],
+    "d": ["alphabet-white-d", "alphabet-yellow-d"],
+    "e": ["alphabet-white-e", "alphabet-yellow-e", "e-mail"],
+    "f": ["alphabet-white-f", "alphabet-yellow-f"],
+    "g": ["alphabet-white-g", "alphabet-yellow-g"],
+    "h": ["alphabet-white-h", "alphabet-yellow-h"],
+    "i": ["alphabet-white-i", "alphabet-yellow-i"],
+    "j": ["alphabet-white-j", "alphabet-yellow-j"],
+    "k": ["alphabet-white-k", "alphabet-yellow-k"],
+    "l": ["alphabet-white-l", "alphabet-yellow-l"],
+    "m": ["alphabet-white-m", "alphabet-yellow-m"],
+    "n": ["alphabet-white-n", "alphabet-yellow-n"],
+    "o": ["alphabet-white-o", "alphabet-yellow-o", "o"],
+    "p": ["alphabet-white-p", "alphabet-yellow-p"],
+    "q": ["alphabet-white-q", "alphabet-yellow-q"],
+    "r": ["alphabet-white-r", "alphabet-yellow-r"],
+    "s": ["alphabet-white-s", "alphabet-yellow-s"],
+    "t": ["alphabet-white-t", "alphabet-yellow-t"],
+    "u": ["alphabet-white-u", "alphabet-yellow-u"],
+    "v": ["alphabet-white-v", "alphabet-yellow-v"],
+    "w": ["alphabet-white-w", "alphabet-yellow-w"],
+    "x": ["alphabet-white-x", "alphabet-yellow-x"],
+    "y": ["alphabet-white-y", "alphabet-yellow-y"],
+    "z": ["alphabet-white-z", "alphabet-yellow-z"],
+    "0": ["zero", "zero"],
+    "1": ["one", "one"],
+    "2": ["two", "two"],
+    "3": ["three", "three"],
+    "4": ["four", "four"],
+    "5": ["five", "five"],
+    "6": ["six", "six"],
+    "7": ["seven", "seven"],
+    "8": ["eight", "eight"],
+    "9": ["nine", "nine"],
+    "?": ["alphabet-white-question", "alphabet-yellow-question"],
+    "!": [
+        "exclamation",
+        "bangbang",
+        "gray_exclamation",
+        "alphabet-white-exclamation",
+        "alphabet-yellow-exclamation",
+    ],
+    "-": ["heavy_minus_sign", "wavy_dash"],
+    " ": [
+        "black_small_square",
+        "white_small_square",
+        "small_orange_diamond",
+        "small_blue_diamond",
+        "black_medium_square",
+        "white_medium_square",
+    ],
+}
+
 
 def parse_args():
     # create the top-level parser
@@ -50,63 +107,6 @@ def parse_args():
 
 
 def message_to_emoji_list(message):
-    # mapping of alphabets to their corresponding emoji names
-    emoji_mapping = {
-        "a": ["a", "alphabet-white-a", "alphabet-yellow-a"],
-        "b": ["b", "alphabet-white-b", "alphabet-yellow-b"],
-        "c": ["alphabet-white-c", "alphabet-yellow-c"],
-        "d": ["alphabet-white-d", "alphabet-yellow-d"],
-        "e": ["alphabet-white-e", "alphabet-yellow-e", "e-mail"],
-        "f": ["alphabet-white-f", "alphabet-yellow-f"],
-        "g": ["alphabet-white-g", "alphabet-yellow-g"],
-        "h": ["alphabet-white-h", "alphabet-yellow-h"],
-        "i": ["alphabet-white-i", "alphabet-yellow-i"],
-        "j": ["alphabet-white-j", "alphabet-yellow-j"],
-        "k": ["alphabet-white-k", "alphabet-yellow-k"],
-        "l": ["alphabet-white-l", "alphabet-yellow-l"],
-        "m": ["alphabet-white-m", "alphabet-yellow-m"],
-        "n": ["alphabet-white-n", "alphabet-yellow-n"],
-        "o": ["alphabet-white-o", "alphabet-yellow-o", "o"],
-        "p": ["alphabet-white-p", "alphabet-yellow-p"],
-        "q": ["alphabet-white-q", "alphabet-yellow-q"],
-        "r": ["alphabet-white-r", "alphabet-yellow-r"],
-        "s": ["alphabet-white-s", "alphabet-yellow-s"],
-        "t": ["alphabet-white-t", "alphabet-yellow-t"],
-        "u": ["alphabet-white-u", "alphabet-yellow-u"],
-        "v": ["alphabet-white-v", "alphabet-yellow-v"],
-        "w": ["alphabet-white-w", "alphabet-yellow-w"],
-        "x": ["alphabet-white-x", "alphabet-yellow-x"],
-        "y": ["alphabet-white-y", "alphabet-yellow-y"],
-        "z": ["alphabet-white-z", "alphabet-yellow-z"],
-        "0": ["zero", "zero"],
-        "1": ["one", "one"],
-        "2": ["two", "two"],
-        "3": ["three", "three"],
-        "4": ["four", "four"],
-        "5": ["five", "five"],
-        "6": ["six", "six"],
-        "7": ["seven", "seven"],
-        "8": ["eight", "eight"],
-        "9": ["nine", "nine"],
-        "?": ["alphabet-white-question", "alphabet-yellow-question"],
-        "!": [
-            "exclamation",
-            "bangbang",
-            "gray_exclamation",
-            "alphabet-white-exclamation",
-            "alphabet-yellow-exclamation",
-        ],
-        "-": ["heavy_minus_sign", "wavy_dash"],
-        " ": [
-            "black_small_square",
-            "white_small_square",
-            "small_orange_diamond",
-            "small_blue_diamond",
-            "black_medium_square",
-            "white_medium_square",
-        ],
-    }
-
     # create a list to hold the emojis
     emojis = []
     # create a dictionary to hold the index of the next emoji to use for
@@ -119,22 +119,30 @@ def message_to_emoji_list(message):
         char = char.lower()
 
         # if the character is in the mapping
-        if char in emoji_mapping:
-            # if the character is not in next_emoji_index, this is the first
-            # time we've seen it
-            if char not in next_emoji_index:
-                next_emoji_index[char] = 0
-
-            # get the next emoji for this character
-            emoji = emoji_mapping[char][next_emoji_index[char]]
-
-            # add the emoji to the list
-            emojis.append(emoji)
-
-            # update the index of the next emoji to use for this character
-            next_emoji_index[char] = (next_emoji_index[char] + 1) % len(
-                emoji_mapping[char]
+        if char not in EMOJI_MAPPING:
+            LOGGER.debug(
+                "Skipping character '%s' since there is no mapping for it",
+                char,
             )
+            continue
+
+        # if the character is not in next_emoji_index, this is the first
+        # time we've seen it
+        if char not in next_emoji_index:
+            next_emoji_index[char] = 0
+
+        # get the next emoji for this character
+        emoji = EMOJI_MAPPING[char][next_emoji_index[char]]
+
+        LOGGER.debug("Converted '%s' to '%s'", char, emoji)
+
+        # add the emoji to the list
+        emojis.append(emoji)
+
+        # update the index of the next emoji to use for this character
+        next_emoji_index[char] = (next_emoji_index[char] + 1) % len(
+            EMOJI_MAPPING[char]
+        )
 
     return emojis
 
@@ -167,13 +175,11 @@ def get_cache_age(
         return
 
 
-def is_cache_valid(
-    filename: str = "channel_cache.json",
-):
+def is_cache_valid(filename: str = "channel_cache.json", max_age: int = 12):
     age = get_cache_age(filename)
     if not age:
         return False
-    return age < datetime.timedelta(days=1)
+    return age < datetime.timedelta(hours=max_age)
 
 
 def update_channel_cache(
@@ -290,6 +296,7 @@ def find_matching_message(client, channel_id, regex):
 
 
 def remove_reactions(client, channel_id, timestamp):
+    LOGGER.info("Removing all reactions from message")
     response = client.reactions_get(channel=channel_id, timestamp=timestamp)
 
     # the reactions are in the 'message'->'reactions' field of the response
@@ -301,15 +308,17 @@ def remove_reactions(client, channel_id, timestamp):
         for x in reactions
         if get_user_id(client) in x.get("users", [])
     ]:
+        LOGGER.info("Removing reaction: '%s'", reaction)
         client.reactions_remove(
             channel=channel_id, timestamp=timestamp, name=reaction
         )
 
 
 def add_reactions(client, channel_id, timestamp, message):
+    LOGGER.info("Adding reactions to message so that is spells '%s'", message)
     for reaction in message_to_emoji_list(message):
         # react to a message
-        LOGGER.info("Adding reaction to message: %s", reaction)
+        LOGGER.info("Adding reaction to message: '%s'", reaction)
         client.reactions_add(
             channel=channel_id, timestamp=timestamp, name=reaction
         )
@@ -320,7 +329,9 @@ def main():
 
     logging.basicConfig(
         level=logging.DEBUG if args.debug else logging.INFO,
-        handlers=[RichHandler()],
+        format="%(message)s",
+        datefmt="[%H:%M:%S]",
+        handlers=[RichHandler(rich_tracebacks=True)],
     )
 
     # create a client instance
@@ -342,7 +353,11 @@ def main():
         ts = message["ts"]
     else:
         # Default to last message
-        ts = response["messages"][0]["ts"]
+        ts = response.get("messages", [{"ts": None}])[0]["ts"]
+
+    if not ts:
+        LOGGER.error("No messages found")
+        return 1
 
     remove_reactions(client, channel_id, ts)
 
