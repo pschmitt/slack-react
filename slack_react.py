@@ -13,7 +13,6 @@ from typing import Dict, List
 
 import slack_sdk
 from appdirs import user_cache_dir
-from rich import print
 from rich.logging import RichHandler
 
 APP_NAME = "slack-react"
@@ -269,7 +268,6 @@ def get_channel_id(client, channel_name):
 
     # iterate over the channels to find the one with the given name
     for channel in channels:
-        # print(channel["name"])
         if channel["name"] == channel_name:
             return channel["id"]
 
@@ -340,7 +338,7 @@ def main():
     channel_id = get_channel_id(client, args.channel)
 
     if not channel_id:
-        print(f"Channel '{args.channel}' not found", file=sys.stderr)
+        LOGGER.error(f"Channel '{args.channel}' not found")
         return 1
 
     response = client.conversations_history(channel=channel_id)
@@ -348,7 +346,7 @@ def main():
     if args.message:
         message = find_matching_message(client, channel_id, args.message)
         if not message:
-            print("Message not found", file=sys.stderr)
+            LOGGER.error("Message not found")
             return 1
         ts = message["ts"]
     else:
