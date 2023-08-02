@@ -276,6 +276,8 @@ def find_matching_message(client, channel_id, regex):
     # get the history of the channel
     response = client.conversations_history(channel=channel_id)
 
+    # TODO Get messages from threads
+
     # the messages are in the 'messages' field of the response
     messages = response["messages"]
 
@@ -343,20 +345,26 @@ def main():
 
     response = client.conversations_history(channel=channel_id)
 
+    target_message = None
     if args.message:
         message = find_matching_message(client, channel_id, args.message)
         if not message:
             LOGGER.error("Message not found")
             return 1
         ts = message["ts"]
+        target_message = message["text"]
     else:
         # Default to last message
-        ts = response.get("messages", [{"ts": None}])[0]["ts"]
+        message = response.get("messages", [{"ts": None}])[0]
+        target_message = message["text"]
+        ts = message["ts"]
 
     if not ts:
         LOGGER.error("No messages found")
         return 1
 
+    LOGGER.debug("Target message: %s", message)
+    LOGGER.info("Target message: %s", target_message)
     remove_reactions(client, channel_id, ts)
 
     if args.reaction and not args.remove:
