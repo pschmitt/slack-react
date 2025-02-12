@@ -17,8 +17,9 @@ classifiers = [
 ]
 dependencies = [
   "appdirs",
+  "certifi>=2025.1.31",
   "rich",
-  "slack_sdk"
+  "slack_sdk",
 ]
 version = "0.3.3"
 

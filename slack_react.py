@@ -8,9 +8,11 @@ import logging
 import os
 import re
 import shutil
+import ssl
 import sys
 from typing import Dict, List
 
+import certifi
 import slack_sdk
 from appdirs import user_cache_dir
 from rich.logging import RichHandler
@@ -335,7 +337,8 @@ def main():
     )
 
     # create a client instance
-    client = slack_sdk.WebClient(token=args.token)
+    ssl_context = ssl.create_default_context(cafile=certifi.where())
+    client = slack_sdk.WebClient(token=args.token, ssl=ssl_context)
 
     channel_id = get_channel_id(client, args.channel)
 
