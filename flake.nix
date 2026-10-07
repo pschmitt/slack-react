@@ -16,7 +16,7 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-        python = pkgs.python312;
+        python = pkgs.python3;
         pyPkgs = python.pkgs;
         slackSdk = pyPkgs."slack-sdk";
 
